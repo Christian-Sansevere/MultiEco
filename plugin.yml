@@ -1,0 +1,18 @@
+name: MultiEco
+main: org.fatecrafters.plugins.MultiEco
+version: 1.0.1
+author: Slayr288
+website: http://Fatecrafters.org
+description: Seperate economy between worlds.
+softdepend: [Vault]
+commands:
+  multieco:
+    description: Main commands.
+    aliases: [meco, multie, mec]
+permissions:
+  multieco.reload:
+    description: Reload Permission.
+    default: op
+  multieco.reset:
+    description: Reload Permission.
+    default: op
