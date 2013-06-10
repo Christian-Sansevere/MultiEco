@@ -53,7 +53,7 @@ public class MEListener implements Listener {
 	public void onCommand(PlayerCommandPreprocessEvent e) {
 		if (plugin.isBlockingCmds()) {
 			String[] args = e.getMessage().split(" ");
-			for (String[] s : MEUtil.cmdMap.values()) {
+			for (String[] s : MEUtil.cmds) {
 				if (args[0].equalsIgnoreCase(s[0])) {
 					int i = 0;
 					int rArg = 0;

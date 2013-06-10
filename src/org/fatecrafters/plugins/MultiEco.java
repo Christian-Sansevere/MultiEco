@@ -64,7 +64,7 @@ public class MultiEco extends JavaPlugin {
 			for (String s : getConfig().getStringList("blockedCommands")) {
 				i++;
 				String[] split = s.split(" ");
-				MEUtil.cmdMap.put(i, split);
+				MEUtil.cmds.add(i, split);
 			}
 		}
 		getLogger().info("MultiEco has been enabled.");
@@ -87,14 +87,14 @@ public class MultiEco extends JavaPlugin {
 					}
 					MEUtil.setupGroups();
 					reloadConfig();
-					MEUtil.cmdMap.clear();
+					MEUtil.cmds.clear();
 					if (getConfig().getBoolean("blockCommandsToDifferentGroups")) {
 						blockCmds = true;
 						int i = 0;
 						for (String s : getConfig().getStringList("blockedCommands")) {
 							i++;
 							String[] split = s.split(" ");
-							MEUtil.cmdMap.put(i, split);
+							MEUtil.cmds.add(i, split);
 						}
 					}
 					sender.sendMessage(ChatColor.LIGHT_PURPLE+"~! "+ChatColor.GRAY+"MultiEco's groups file, config file, and messages file has been reloaded.");
