@@ -6,12 +6,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 public class MEListener implements Listener {	
@@ -46,6 +49,43 @@ public class MEListener implements Listener {
 
 	}
 
+	@EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+	public void onCommand(PlayerCommandPreprocessEvent e) {
+		if (plugin.isBlockingCmds()) {
+			String[] args = e.getMessage().split(" ");
+			for (String[] s : MEUtil.cmdMap.values()) {
+				if (args[0].equalsIgnoreCase(s[0])) {
+					int i = 0;
+					int rArg = 0;
+					for (String string : s) {
+						if (string.equals("$player"))  {
+							rArg = i;
+							break;
+						}
+						i++;
+					}
+					String pGroup = null;
+					Player p = e.getPlayer();
+					String world = p.getWorld().getName();
+					for (String group : MEUtil.groups) {
+						if (MEUtil.groupMap.get(group).contains(world)) {
+							pGroup = group;
+							break;
+						}
+					}
+					if (args.length >= rArg+1) {
+						Player payee = plugin.getServer().getPlayer(args[rArg]);
+						if (payee != null && !p.hasPermission("multieco.commandblock.bypass") && !MEUtil.groupMap.get(pGroup).contains(payee.getWorld().getName())) {
+							e.setCancelled(true);
+							p.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.blockedMessage()));
+						}
+						break;
+					}
+				}
+			}
+		}
+	}
+
 	@EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
 	public void onChangeWorld(PlayerChangedWorldEvent e) {
 		final String name = e.getPlayer().getName(), worldName = e.getPlayer().getWorld().getName(), fromWorld = e.getFrom().getName();
@@ -53,16 +93,16 @@ public class MEListener implements Listener {
 		plugin.getServer().getScheduler().runTaskAsynchronously(plugin, new Runnable() {
 			public void run() {
 				if (MultiEco.econ.hasAccount(name)) {
-					
+
 					File file = new File(plugin.getDataFolder()+File.separator+"userdata"+File.separator+name+".yml");
 					FileConfiguration config = YamlConfiguration.loadConfiguration(file);
 					String toWorldGroup = null;
 					boolean toWorldGrouped = false;
 					double bal = MultiEco.econ.getBalance(name);
 					Long now = System.currentTimeMillis();
-					
+
 					try {
-						
+
 						for (String group : MEUtil.groups) {
 							if (MEUtil.groupMap.get(group).contains(worldName)) {
 								toWorldGroup = group;
@@ -75,13 +115,14 @@ public class MEListener implements Listener {
 									config.save(file);
 									return;
 								}
+								break;
 							}
 						}
 
 						config.set("Data.Worlds."+fromWorld+".balance", bal);
 						config.set("Data.Worlds."+fromWorld+".time", now);
 						MultiEco.econ.withdrawPlayer(name, bal);
-						
+
 						if (toWorldGrouped) {
 							List<String> worlds = MEUtil.groupMap.get(toWorldGroup);
 							longArray.clear();
@@ -93,6 +134,7 @@ public class MEListener implements Listener {
 							for (String groupedWorld : worlds) {
 								if (config.getLong("Data.Worlds."+groupedWorld+".time") == highestTime) {
 									newestWorld = groupedWorld;
+									break;
 								}
 							}
 							double worldBal = config.getDouble("Data.Worlds."+newestWorld+".balance");
@@ -105,7 +147,7 @@ public class MEListener implements Listener {
 						} else {
 							MultiEco.econ.depositPlayer(name, config.getDouble("Data.Worlds."+worldName+".balance"));
 						}
-						
+
 						config.save(file);
 
 					} catch (IOException e) {

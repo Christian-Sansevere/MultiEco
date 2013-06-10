@@ -1,0 +1,6 @@
+blockCommandsToDifferentGroups: true
+blockedCommands:
+  - /pay $player <amount>
+  - /epay $player <amount>
+  - /econ pay $player <amount>
+  - /anyCommand anyArg $player anotherArg

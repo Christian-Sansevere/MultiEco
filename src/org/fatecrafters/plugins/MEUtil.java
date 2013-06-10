@@ -15,6 +15,7 @@ public class MEUtil {
 	private static MultiEco plugin;
 
 	public static HashMap<String, List<String>> groupMap = new HashMap<String, List<String>>();
+	public static HashMap<Integer, String[]> cmdMap = new HashMap<Integer, String[]>();
 	public static List<String> groups = new ArrayList<String>();
 	public static List<String> worlds = new ArrayList<String>();
 
